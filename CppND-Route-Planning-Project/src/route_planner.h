@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 #include "route_model.h"
-#include <algorithm>
-
 
 class RoutePlanner {
   public:
@@ -20,13 +18,6 @@ class RoutePlanner {
     float CalculateHValue(RouteModel::Node const *node);
     std::vector<RouteModel::Node> ConstructFinalPath(RouteModel::Node *);
     RouteModel::Node *NextNode();
-
-    // Addtional methods
-    static bool Compare(const RouteModel::Node *a, const RouteModel::Node *b) {
-      float f_a = a->g_value + a->h_value;
-      float f_b = b->g_value + b->h_value;
-      return f_a > f_b;
-    };
 
   private:
     // Add private variables or methods declarations here.
