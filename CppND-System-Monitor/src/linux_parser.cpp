@@ -119,11 +119,11 @@ long LinuxParser::Jiffies(vector<string> utilization) {
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-float LinuxParser::ActiveJiffies(int pid) {
+long LinuxParser::ActiveJiffies(int pid) {
   string line;
   vector<string> values;
   string value;
-  long proc_active_jiffies = 0;
+
   std::ifstream filestream(kProcDirectory + std::to_string(pid) + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
@@ -134,18 +134,21 @@ float LinuxParser::ActiveJiffies(int pid) {
     }
   }
 
-  float utime = stof(values[k_utime_]);
-  float stime = stof(values[k_stime_]);
-  float cutime = stof(values[k_cutime_]);
-  float cstime = stof(values[k_cstime_]);
-  float hertz = sysconf(_SC_CLK_TCK);
-  float starttime = stof(values[k_starttime_]);
-  float uptime = LinuxParser::UpTime();
-  float total_time = utime + stime + cutime + cstime;
-  float seconds = uptime - (starttime / hertz);
-  float cpu_usage = total_time / hertz / seconds;
+  // float utime = stof(values[k_utime_]);
+  // float stime = stof(values[k_stime_]);
+  // float cutime = stof(values[k_cutime_]);
+  // float cstime = stof(values[k_cstime_]);
+  // float hertz = sysconf(_SC_CLK_TCK);
+  // float starttime = stof(values[k_starttime_]);
+  // float uptime = LinuxParser::UpTime();
+  // float total_time = utime + stime + cutime + cstime;
+  // float seconds = uptime - (starttime / hertz);
+  // float cpu_usage = total_time / hertz / seconds;
 
-  return cpu_usage;
+  return stol(values[k_utime_]) +
+    stol(values[k_stime_]) +
+    stol(values[k_cutime_]) +
+    stol(values[k_cstime_]);
 }
 
 // TODO: Read and return the number of active jiffies for the system
@@ -311,13 +314,14 @@ long LinuxParser::UpTime(int pid) {
   string line;
   string value;
   int index = 0;
+  float hertz = sysconf(_SC_CLK_TCK);
   std::ifstream filestream(kProcDirectory + std::to_string(pid) + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> value) {
-        if (index == 13) {
-          return stof(value) / sysconf(_SC_CLK_TCK);
+        if (index == k_starttime_) {
+          return LinuxParser::UpTime() - stof(value) / hertz;
         }
         index ++;
       }
