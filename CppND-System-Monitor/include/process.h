@@ -2,6 +2,7 @@
 #define PROCESS_H
 
 #include <string>
+#include "linux_parser.h"
 /*
 Basic class for Process representation
 It contains relevant attributes as shown below
@@ -20,6 +21,8 @@ public:
   // TODO: Declare any necessary private members
 private:
     int pid_;
+
+
 };
 
 #endif
